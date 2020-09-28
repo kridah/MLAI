@@ -19,9 +19,9 @@ class NewInt(int):
         f0, f1 = 0, 1
         while True:
             if f0 > self.range_max:
-                return False
+                yield False
             if self == f0:
-                return True
+                yield True
             f0, f1 = f1, f0 + f1
 
 # for i in range(0, 100):
@@ -29,8 +29,7 @@ class NewInt(int):
 #    print(i.is_fib())
 #    print(str(i))
 
-
-# %timeit pass
+#%timeit pass
 compared_fibonaccis = [x for x in range(0, 1000) if NewInt(x).is_fib()]
 
 print(compared_fibonaccis)
