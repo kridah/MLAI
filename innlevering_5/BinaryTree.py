@@ -59,7 +59,7 @@ class BinaryTree:
             current = self._root
         return current, treenode
 
-    def insert(self, current = None, treenode = None, value = None):
+    def insert(self, current=None, treenode=None, value=None):
         if current == None:
             current = self._root
         # Checking consistency ...
@@ -83,7 +83,7 @@ class BinaryTree:
                     self._root = treenode
                 else:
                     raise Exception("Duplicate key: " + treenode.value)
-        else: # If empty tree, the first node entered is the root
+        else:  # If empty tree, the first node entered is the root
             self._root = treenode
         return treenode
 
@@ -122,15 +122,47 @@ class BinaryTree:
                 parent = current
 
     def delete(self, key):
-        node = self.find(key)
-        delnode = node
+        #
+        # Finding node ... with parent reference ...
+        # Need the parent reference to update tree references
+        parent = self._root
+        current = parent
+        while True:
+            if key < current.value:
+                parent = current
+                current = parent.left
+            elif key > current.value:
+                parent = current
+                current = parent.right
+            elif key == current.value:
+                node = current
+                break
+            else:
+                return None
+        # using a shallow copy of the original node to maintain deleted node while reassigning it
+        import copy
+        delnode = copy.copy(node)
+        # If node has no children, we need to update the parent reference
         if not node.left and not node.right:
+            if parent.left == node:
+                parent.left = None
+            if parent.right == node:
+                parent.right = None
+            if node == self._root:
+                self._root = None
             node = None
         elif node.right:
-            temptree = BinaryTree(node.right)
-            mintempnode = temptree.deleteMin()
-            node.value = mintempnode.value
+            if node.right.left is None:
+                node.value = node.right.value
+                node.right = node.right.right
+            else:
+                temptree = BinaryTree(node.right)
+                mintempnode = temptree.deleteMin()
+                node.value = mintempnode.value
         elif node.left:
-            node = node.left
+            if parent.left == node:
+                parent.left = node.left
+            elif parent.right == node:
+                parent.right = node.left
         return delnode
     
