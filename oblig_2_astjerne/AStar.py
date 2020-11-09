@@ -254,6 +254,8 @@ class AStar(Graph):
         from queue import Queue as fifo
         self.initPygame()
 
+
+
         if startVertexName not in self.vertecies:
             raise KeyError("Start node not present in graph")
         # Reset visited and previous pointer before running algorithm
@@ -269,6 +271,7 @@ class AStar(Graph):
         edge = Edge(0, vertex)
         from queue import PriorityQueue
         priqueue = PriorityQueue()
+        closedset = fifo()
 
         priqueue.put(edge)
         while not priqueue.empty():
@@ -278,6 +281,7 @@ class AStar(Graph):
             print(eyeball)
             if eyeball == toNode:
                 break
+            closedset.put(eyeball)
             self.pygameState(eyeball, self.GREEN)
             self.pygameState(startNode,self.BLUE)
             self.pygameState(toNode,self.RED)
@@ -291,15 +295,17 @@ class AStar(Graph):
                     neighbour.vertex.g = eyeball.g + neighbour.weight
                     neighbour.vertex.h = self.heuristics(neighbour.vertex.name, toNode.name)
                     neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
-                    neighbour.vertex.known = True
                     priqueue.put(neighbour)
+                    neighbour.vertex.known = True
                     self.pygameState(neighbour.vertex, self.PINK)
                 else:
                     if neighbour.vertex.g > eyeball.g + neighbour.weight:
                         neighbour.vertex.previous = eyeball
                         neighbour.vertex.g = eyeball.g + neighbour.weight
                         neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
-                        priqueue.put(neighbour)
+                        #priqueue.put(neighbour)
+                    #if closedset.get(neighbour):
+                    #    priqueue.put(neighbour)
 
             self.pygameState(eyeball, self.LIGHTGREY)
         for n in self.getPath(startVertexName, targetVertexName):
@@ -365,12 +371,12 @@ astar = AStar(delay = 0, visual = True)
 
 #astar.readFile('minigraf.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('minigraf_xtras.txt')
-#astar.readFile('astjernegraf.txt')
-#startVertexName, targetVertexName, removed = astar.readLimitations('xtras.txt')
+astar.readFile('astjernegraf.txt')
+startVertexName, targetVertexName, removed = astar.readLimitations('xtras.txt')
 #astar.readFile('biggraph.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('biggraph_xtras.txt')
-astar.readFile('AStarObligGraf.txt')
-startVertexName, targetVertexName, removed = astar.readLimitations('AStarObligGraf_xtras.txt')
+#star.readFile('AStarObligGraf.txt')
+#startVertexName, targetVertexName, removed = astar.readLimitations('AStarObligGraf_xtras.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('minigraf_xtras.txt')
 
 #astar.Dijkstra(startVertexName,targetVertexName)
