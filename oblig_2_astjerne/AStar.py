@@ -277,11 +277,9 @@ class AStar(Graph):
         while not priqueue.empty():
             edge = priqueue.get(edge)
             eyeball = edge.vertex       # eyeball er noden vi ser på
-            print(edge)
-            print(eyeball)
             if eyeball == toNode:
                 break
-            closedset.put(eyeball)
+            #closedset.put(eyeball)
             self.pygameState(eyeball, self.GREEN)
             self.pygameState(startNode,self.BLUE)
             self.pygameState(toNode,self.RED)
@@ -303,80 +301,25 @@ class AStar(Graph):
                         neighbour.vertex.previous = eyeball
                         neighbour.vertex.g = eyeball.g + neighbour.weight
                         neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
-                        #priqueue.put(neighbour)
-                    #if closedset.get(neighbour):
-                    #    priqueue.put(neighbour)
+                        if closedset.get(neighbour):
+                            priqueue.put(neighbour)
 
             self.pygameState(eyeball, self.LIGHTGREY)
         for n in self.getPath(startVertexName, targetVertexName):
             self.pygameState(n, self.DARKGREEN)
         return self.getPath(startVertexName, targetVertexName)
 
-        # openset = PriorityQueue()
-        # closedset = fifo()
-        # startnode = self.vertecies[startVertexName]
-        # targetnode = self.vertecies[targetVertexName]
-        # startnode.g = 0
-        # startnode.h = self.heuristics(startVertexName, targetVertexName)
-        # # current = get node from openSet
-        # ## hvis current == targetnode, break
-        # edge: Edge = Edge(0, startnode)
-        #
-        # openset.put(edge)
-        # while not openset.empty():
-        #     current = openset.get()     # current er en edge, som har egenskapen .vertex
-        #     eyeball: Vertex = current.vertex
-        #     self.pygameState(eyeball, self.GREEN)
-        #     self.pygameState(startnode, self.BLUE)
-        #     self.pygameState(targetnode, self.RED)
-        #     print(targetnode)
-        #     print(current)
-        #     print(edge.vertex.adjecent)
-        #     if current.vertex == targetnode:   # hvis vi er på target, stop loopen
-        #         break
-        #     closedset.put(edge)
-        #     for edge in eyeball.adjecent:
-        #         if not openset.get(edge.vertex):
-        #             if not closedset.get(edge.vertex):
-        #                 edge.vertex.previous = eyeball
-        #                 edge.vertex.g = eyeball.g + edge.weight
-        #                 edge.vertex.h = self.heuristics(edge.vertex.name, targetnode.name)
-        #                 edge.vertex.f = edge.vertex.g + edge.vertex.h
-        #                 openset.put(edge.vertex, edge.vertex.f)
-        #                 print("edge ", edge)
-        #                 print("eyeball ", eyeball)
-        #                 print("g ", edge.vertex.g)
-        #                 print("h ", edge.vertex.h)
-        #                 print("f ", edge.vertex.f)
-        #         else:
-        #             if edge.vertex.g > eyeball.g + edge.weight:
-        #                 edge.vertex.previous = eyeball
-        #                 edge.vertex.g = eyeball.g + edge.weight
-        #                 edge.vertex.f = edge.vertex + edge.vertex.h
-        #             for adjecentedge in eyeball.adjecent:
-        #                 if not adjecentedge.vertex.known:
-        #                     adjecentedge.vertex.distance = 1 + adjecentedge.weight  #DISTANCe er None på første kjøring
-        #                     adjecentedge.vertex.previous = eyeball
-        #                     adjecentedge.vertex.known = True
-        #                     openset.put(adjecentedge)
-        #                     self.pygameState(adjecentedge.vertex, self.PINK)
-        #
-        #     self.pygameState(eyeball, self.LIGHTGREY)
-        #     for n in self.getPath(startVertexName, targetVertexName):
-        #         self.pygameState(n, self.DARKGREEN)
-        # return self.getPath(startVertexName, targetVertexName)
-
 
 astar = AStar(delay = 0, visual = True)
 
 #astar.readFile('minigraf.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('minigraf_xtras.txt')
-astar.readFile('astjernegraf.txt')
-startVertexName, targetVertexName, removed = astar.readLimitations('xtras.txt')
+#astar.readFile('astjernegraf.txt')
+#startVertexName, targetVertexName, removed = astar.readLimitations('xtras.txt')
 #astar.readFile('biggraph.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('biggraph_xtras.txt')
-#star.readFile('AStarObligGraf.txt')
-#startVertexName, targetVertexName, removed = astar.readLimitations('AStarObligGraf_xtras.txt')
+astar.readFile('AStarObligGraf.txt')
+startVertexName, targetVertexName, removed = astar.readLimitations('AStarObligGraf_xtras.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('minigraf_xtras.txt')
 
 #astar.Dijkstra(startVertexName,targetVertexName)
