@@ -289,15 +289,17 @@ class AStar(Graph):
                 if not neighbour.vertex.known:
                     neighbour.vertex.previous = eyeball
                     neighbour.vertex.g = eyeball.g + neighbour.weight
-                    print(neighbour.vertex.g)
-                    print(eyeball.g)
-                    print(neighbour.weight)
                     neighbour.vertex.h = self.heuristics(neighbour.vertex.name, toNode.name)
-                    print(neighbour.vertex.h)
                     neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
-                    print(neighbour.vertex.f)
+                    neighbour.vertex.known = True
                     priqueue.put(neighbour)
                     self.pygameState(neighbour.vertex, self.PINK)
+                else:
+                    if neighbour.vertex.g > eyeball.g + neighbour.weight:
+                        neighbour.vertex.previous = eyeball
+                        neighbour.vertex.g = eyeball.g + neighbour.weight
+                        neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
+                        priqueue.put(neighbour)
 
             self.pygameState(eyeball, self.LIGHTGREY)
         for n in self.getPath(startVertexName, targetVertexName):
@@ -363,12 +365,12 @@ astar = AStar(delay = 0, visual = True)
 
 #astar.readFile('minigraf.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('minigraf_xtras.txt')
-astar.readFile('astjernegraf.txt')
-startVertexName, targetVertexName, removed = astar.readLimitations('xtras.txt')
+#astar.readFile('astjernegraf.txt')
+#startVertexName, targetVertexName, removed = astar.readLimitations('xtras.txt')
 #astar.readFile('biggraph.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('biggraph_xtras.txt')
-#astar.readFile('AStarObligGraf.txt')
-#startVertexName, targetVertexName, removed = astar.readLimitations('AStarObligGraf_xtras.txt')
+astar.readFile('AStarObligGraf.txt')
+startVertexName, targetVertexName, removed = astar.readLimitations('AStarObligGraf_xtras.txt')
 #startVertexName, targetVertexName, removed = astar.readLimitations('minigraf_xtras.txt')
 
 #astar.Dijkstra(startVertexName,targetVertexName)
