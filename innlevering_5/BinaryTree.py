@@ -1,4 +1,4 @@
-from BinaryTreeNode import BinaryTreeNode
+from innlevering_5.BinaryTreeNode import BinaryTreeNode
 
 class BinaryTree:
     def __init__(self, data = None):
@@ -165,4 +165,27 @@ class BinaryTree:
             elif parent.right == node:
                 parent.right = node.left
         return delnode
-    
+
+
+    # miks av delete og find
+    def delete_recursive(self, key, treenode = None):
+        if treenode:
+            if treenode.value > key:
+                return self.delete_recursive(key, treenode.left)
+            elif treenode.value < key:
+                return self.delete_recursive(key, treenode.right)
+            elif treenode.value == key:
+                tempnode = treenode
+                if not treenode.left and not treenode.right:
+                    tempnode = None
+                elif treenode.right:
+                    temptree = BinaryTree(treenode.right)
+                    min_node = temptree.deleteMin()
+                    treenode.value = min_node.value
+                elif treenode.left:
+                    treenode = treenode.left
+                return tempnode
+            else:
+                return None
+        else:
+            return self.delete_recursive(key, self._root)
