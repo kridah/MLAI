@@ -254,7 +254,7 @@ class AStar(Graph):
         from queue import Queue as fifo
         self.initPygame()
 
-
+        # 20201110 - Beveger seg som Dijkstras, men stopper når den finner noden.
 
         if startVertexName not in self.vertecies:
             raise KeyError("Start node not present in graph")
@@ -272,37 +272,46 @@ class AStar(Graph):
         from queue import PriorityQueue
         priqueue = PriorityQueue()
         closedset = fifo()
+        def enqueue(data):
+            priqueue.put(data)
+        def dequeue():
+            return priqueue.get()
+        def is_in_queue(x, q):
+            with q.mutex:
+                return x in q.queue
 
-        priqueue.put(edge)
+        priqueue.put(edge.vertex)
         while not priqueue.empty():
-            edge = priqueue.get(edge)
-            eyeball = edge.vertex       # eyeball er noden vi ser på
+            current = dequeue()            # current er kanten vi henter fra priqueue
+            eyeball = current       # eyeball er noden vi ser på
             if eyeball == toNode:
                 break
-            #closedset.put(eyeball)
+            closedset.put(current)
             self.pygameState(eyeball, self.GREEN)
-            self.pygameState(startNode,self.BLUE)
-            self.pygameState(toNode,self.RED)
-            if not eyeball.known:
-                eyeball.distance = distance
-                eyeball.previous = previous_node
-            eyeball.known = True
-            for neighbour in eyeball.adjecent:      # se på alle nabonoder til
-                if not neighbour.vertex.known:
-                    neighbour.vertex.previous = eyeball
-                    neighbour.vertex.g = eyeball.g + neighbour.weight
-                    neighbour.vertex.h = self.heuristics(neighbour.vertex.name, toNode.name)
-                    neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
-                    priqueue.put(neighbour)
-                    neighbour.vertex.known = True
-                    self.pygameState(neighbour.vertex, self.PINK)
+            self.pygameState(startNode, self.BLUE)
+            self.pygameState(toNode, self.RED)
+            # if not eyeball.known:
+            #     eyeball.distance = distance
+            #     eyeball.previous = previous_node
+            # eyeball.known = True
+            for edge in eyeball.adjecent:      # se på alle nabonoder til
+                # if neighbour.vertex not in priqueue:
+                if not is_in_queue(edge.vertex, priqueue):
+                    if not is_in_queue(edge.vertex, closedset):
+                        edge.vertex.previous = eyeball
+                        edge.vertex.g = eyeball.g + edge.weight
+                        edge.vertex.h = self.heuristics(eyeball.name, toNode.name) # alt (neighbour.vertex.name, toNode.name)
+                        edge.vertex.f = edge.vertex.g + edge.vertex.h
+                        enqueue(edge.vertex)
+                        self.pygameState(edge.vertex, self.PINK)
                 else:
-                    if neighbour.vertex.g > eyeball.g + neighbour.weight:
-                        neighbour.vertex.previous = eyeball
-                        neighbour.vertex.g = eyeball.g + neighbour.weight
-                        neighbour.vertex.f = neighbour.vertex.g + neighbour.vertex.h
-                        if closedset.get(neighbour):
-                            priqueue.put(neighbour)
+                    if edge.vertex.g > eyeball.g + edge.weight:
+                        edge.vertex.previous = eyeball
+                        edge.vertex.g = eyeball.g + edge.weight
+                        edge.vertex.f = edge.vertex.g + edge.vertex.h
+                    if is_in_queue(edge.vertex, closedset):
+                        edge.vertex = closedset.get()
+                        enqueue(edge.vertex)
 
             self.pygameState(eyeball, self.LIGHTGREY)
         for n in self.getPath(startVertexName, targetVertexName):

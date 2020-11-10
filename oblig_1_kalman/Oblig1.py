@@ -86,39 +86,40 @@ class Kalman():
 
     # Enkelte verdier er basert på gjetting, prøving og feiling
     def __init__(self):
-        self.alpha = 2 / 3
+        self.alpha = 2 / 3  # initierings-verdi av targest posisjon. Brukes kun for initialisering av filter
         self.beta = 0.1
         self.n = iters  # antall iterasjoner
-        self.dt = fps   # dt antall målinger i sekundet gitt i fps
-        self.current_iteration = 9   # xn_n
+        self.dt = fps   # dt antall målinger i sekundet bestemt av fps
+        self.current_estimate = 9   # xn_n
         self.prediction = 0    # Xn,n + 1
         self.previous_iteration = 0   # Xn,n - 1
-        self.xdhn_n = 1
+        self.xdhn_n = 1         # x delta h n_n?
         self.xdhn_n_plus_1 = 0
         self.xdhn_n_minus_1 = 0
-        self.z_n = 0.0
+        self.measurement_on_iteration_n = 0.0
 
     def state_extrapolation_equation(self):
-        self.prediction = self.current_iteration + (self.dt * self.xdhn_n)
+        self.prediction = self.current_estimate + (self.dt * self.xdhn_n)
         self.xdhn_n_plus_1 = self.xdhn_n
 
     def state_update_equation(self):
-        self.current_iteration = self.previous_iteration + self.alpha * (self.z_n - self.previous_iteration)
+        self.current_estimate = self.previous_iteration + self.alpha * \
+                               (self.measurement_on_iteration_n - self.previous_iteration)
 
         ''' Hver for seg gir de to neste regnestykkene stigende eller synkende kalmanscore.
-            Ved å bruke begge to får jeg mer konsistent resultat / kalmanscore.'''
+            Ved å bruke begge to får jeg bedre og mer konsistent resultat / kalmanscore.'''
         self.xdhn_n = self.xdhn_n_minus_1 + self.beta * (
-                (self.z_n - self.previous_iteration) // self.dt)  # gir økende kalmanscore 0.0 -> 0.8
+                (self.measurement_on_iteration_n - self.previous_iteration) / self.dt)  # gir minkende kalmanscore 0.9 -> 0.4
         self.xdhn_n = self.xdhn_n_minus_1 + self.beta * (
-                (self.z_n - self.previous_iteration) / self.dt)  # gir minkende kalmanscore 0.4 -> 0.9
+                (self.measurement_on_iteration_n - self.previous_iteration) // self.dt)  # gir økende kalmanscore 0.0 -> 0.8
 
     def measurement(self, value):
-        self.z_n = value
+       self.measurement_on_iteration_n = value    # z_n
 
     def iterate(self):
         self.n += iters  # iterasjoner
         # predikeringen fra forrige iterasjon settes til det forrige estimatet til nåværende iterasjon
-        self.previous_iteration = self.current_iteration
+        self.previous_iteration = self.current_estimate
         self.xdhn_n_minus_1 = self.xdhn_n
         self.dt = fps
 
@@ -133,8 +134,10 @@ class Kalman():
         self.state_update_equation()
         self.state_extrapolation_equation()
         self.iterate()
-        return self.current_iteration    # returnerer predikert posisjon til k_miss
-
+        return self.current_estimate    # returnerer predikert posisjon til k_miss
+#
+#### end of kalman class ####
+#
 
 pg.init()
 
