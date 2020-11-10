@@ -251,11 +251,15 @@ class AStar(Graph):
     '''
 
     def AStarSearch(self, startVertexName=None, targetVertexName=None):
-        from queue import Queue as fifo
         self.initPygame()
 
-        # 20201110 - Beveger seg som Dijkstras, men stopper når den finner noden.
+        # 20201110 - Algoritmen er implementert og testet mot AStarObligGraf.txt
 
+
+        ''' Sjekker at grafen er riktig initialisert.
+            Setter start og sluttnoden (target).
+            Initialiserer en kant (edge) fra startnoden.'''
+        # hentet fra Dijikstra-metoden
         if startVertexName not in self.vertecies:
             raise KeyError("Start node not present in graph")
         # Reset visited and previous pointer before running algorithm
@@ -268,52 +272,61 @@ class AStar(Graph):
         # Create priority queue, priority = current weight on edge ...
         # No duplicate edges in queue allowed
         #
-        edge = Edge(0, vertex)
+        edge = Edge(0, vertex)              # startpunkt
+
+        # -- implementering --
         from queue import PriorityQueue
-        priqueue = PriorityQueue()
-        closedset = fifo()
+        priqueue = PriorityQueue()          # openset   - node som skal besøkes
+        from queue import Queue as fifo
+        closedset = fifo()                  # closedset - noder som er besøkt
+
+        # setter noder i priorietskø. Prioritet gitt av vekten på kanten (eller muligens f-verdien)
         def enqueue(data):
             priqueue.put(data)
+        # tar node ut av kø, og fjerner gjeldene node.
         def dequeue():
             return priqueue.get()
-        def is_in_queue(x, q):
+        # itererer over en kø q, og sjekker om vertex finnes i køen
+        def is_in_queue(vertex, q):
             with q.mutex:
-                return x in q.queue
+                return vertex in q.queue
 
+        # setter startnoden, og legger den i prioritetskøen
         priqueue.put(edge.vertex)
         while not priqueue.empty():
-            current = dequeue()            # current er kanten vi henter fra priqueue
-            eyeball = current       # eyeball er noden vi ser på
-            if eyeball == toNode:
+            current = dequeue()     # current er noden vi henter fra priqueue
+            if current == toNode:   # hvis vi er i mål, hopp ut av loopen
                 break
-            closedset.put(current)
-            self.pygameState(eyeball, self.GREEN)
+            closedset.put(current)  # noen vi har besøkt kan legges i closedset
+            ''' Fargesetter punktene i grafen '''
+            self.pygameState(current, self.GREEN)
             self.pygameState(startNode, self.BLUE)
             self.pygameState(toNode, self.RED)
-            # if not eyeball.known:
-            #     eyeball.distance = distance
-            #     eyeball.previous = previous_node
-            # eyeball.known = True
-            for edge in eyeball.adjecent:      # se på alle nabonoder til
+
+            ''' Itererer kantene til en node.'''
+            for edge in current.adjecent:      # se på alle kanter til current vertex
                 # if neighbour.vertex not in priqueue:
                 if not is_in_queue(edge.vertex, priqueue):
+                    # if neighbour.vertex not in closedset
                     if not is_in_queue(edge.vertex, closedset):
-                        edge.vertex.previous = eyeball
-                        edge.vertex.g = eyeball.g + edge.weight
-                        edge.vertex.h = self.heuristics(eyeball.name, toNode.name) # alt (neighbour.vertex.name, toNode.name)
+                        edge.vertex.previous = current
+                        edge.vertex.g = current.g + edge.weight
+                        edge.vertex.h = self.heuristics(current.name, toNode.name)
                         edge.vertex.f = edge.vertex.g + edge.vertex.h
                         enqueue(edge.vertex)
                         self.pygameState(edge.vertex, self.PINK)
+                # neighbour is in priqueue
                 else:
-                    if edge.vertex.g > eyeball.g + edge.weight:
-                        edge.vertex.previous = eyeball
-                        edge.vertex.g = eyeball.g + edge.weight
+                    if edge.vertex.g > current.g + edge.weight:
+                        edge.vertex.previous = current
+                        edge.vertex.g = current.g + edge.weight
                         edge.vertex.f = edge.vertex.g + edge.vertex.h
+                    # hvis vertex er i closedset
                     if is_in_queue(edge.vertex, closedset):
-                        edge.vertex = closedset.get()
-                        enqueue(edge.vertex)
+                        edge.vertex = closedset.get()   # hent vertex fra closedset
+                        enqueue(edge.vertex)            # legg vertex i priqueue for ny behandling
 
-            self.pygameState(eyeball, self.LIGHTGREY)
+            self.pygameState(current, self.LIGHTGREY)
         for n in self.getPath(startVertexName, targetVertexName):
             self.pygameState(n, self.DARKGREEN)
         return self.getPath(startVertexName, targetVertexName)
